@@ -44,9 +44,23 @@ a Terraform template or AWS CLI commands.
 
 ### I Have Ideas to Improve *aws-nuke*
 
+You should take these steps, if you have an idea how to import *aws-nuke*:
+
+1. Check the [issues page](https://github.com/rebuy-de/aws-nuke/issues),
+   whether someone already had the same or a similar idea.
+2. Also check the [closed
+   issues](https://github.com/rebuy-de/aws-nuke/issues?utf8=%E2%9C%93&q=is%3Aissue),
+   because this might already have been implemented, but not yet released. Also
+   the idea might no be viable for unobvious reasons.
+3. Join the discussion, if there is already an related issue. If this is not
+   the case, open a new issue and describe your idea. Afterwards, we can
+   discuss this idea and form a proposal.
+
+
 ### I Just Have a Question
 
-Join our ICR channel [`#aws-nuke`](https://webchat.freenode.net/?channels=aws-nuke) at `cat.freenode.net`.
+Join our ICR channel [`#aws-nuke`](https://webchat.freenode.net/?channels=aws-nuke) at `chat.freenode.net`.
+
 
 ## Resource Guidelines
 
