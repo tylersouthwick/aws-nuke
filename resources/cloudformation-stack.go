@@ -2,11 +2,13 @@ package resources
 
 import (
 	"errors"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
 	"github.com/rebuy-de/aws-nuke/pkg/types"
 	"github.com/sirupsen/logrus"
+	"strings"
 )
 
 const CLOUDFORMATION_MAX_DELETE_ATTEMPT = 3
@@ -72,6 +74,12 @@ func (cfs *CloudFormationStack) doRemove() error {
 		StackName: cfs.stack.StackName,
 	})
 	if err != nil {
+		if awsErr, ok := err.(awserr.Error); ok {
+			if awsErr.Code() == "ValidationFailed" && strings.HasSuffix(awsErr.Message(), " does not exist") {
+				logrus.Infof("CloudFormationStack stackName=%s no longer exists", *cfs.stack.StackName)
+				return nil
+			}
+		}
 		return err
 	}
 	stack := o.Stacks[0]
