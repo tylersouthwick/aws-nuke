@@ -1,0 +1,89 @@
+package resources
+
+import (
+	"fmt"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
+	"github.com/rebuy-de/aws-nuke/pkg/types"
+	"github.com/sirupsen/logrus"
+)
+
+func init() {
+	register("CloudFormationType", ListCloudFormationTypes)
+}
+
+func ListCloudFormationTypes(sess *session.Session) ([]Resource, error) {
+	svc := cloudformation.New(sess)
+
+	params := &cloudformation.ListTypesInput{}
+	resources := make([]Resource, 0)
+
+	for {
+		resp, err := svc.ListTypes(params)
+		if err != nil {
+			return nil, err
+		}
+		for _, typeSummary := range resp.TypeSummaries {
+			resources = append(resources, &CloudFormationType{
+				svc:         svc,
+				typeSummary: typeSummary,
+			})
+		}
+
+		if resp.NextToken == nil {
+			break
+		}
+
+		params.NextToken = resp.NextToken
+	}
+
+	return resources, nil
+}
+
+type CloudFormationType struct {
+	svc         cloudformationiface.CloudFormationAPI
+	typeSummary *cloudformation.TypeSummary
+}
+
+func (cfs *CloudFormationType) Remove() error {
+	typeVersionSummaries := make([]*cloudformation.TypeVersionSummary, 0)
+	if err := cfs.svc.ListTypeVersionsPages(&cloudformation.ListTypeVersionsInput{
+		Arn: cfs.typeSummary.TypeArn,
+	}, func(output *cloudformation.ListTypeVersionsOutput, lastPage bool) bool {
+		typeVersionSummaries = append(typeVersionSummaries, output.TypeVersionSummaries...)
+		return true
+	}); err != nil {
+		return err
+	}
+
+	failed := false
+	for _, typeVersionSummary := range typeVersionSummaries {
+		logrus.Infof("CloudFormationType removing type=%s version=%s", *cfs.typeSummary.TypeArn, *typeVersionSummary.VersionId)
+		if _, err := cfs.svc.DeregisterType(&cloudformation.DeregisterTypeInput{
+			VersionId: typeVersionSummary.VersionId,
+			TypeName:  typeVersionSummary.TypeName,
+		}); err != nil {
+			logrus.Errorf("CloudFormationType failed removing type=%s version=%s error=%s", *cfs.typeSummary.TypeArn, *typeVersionSummary.VersionId, err.Error())
+			failed = true
+		}
+	}
+
+	if failed {
+		return fmt.Errorf("Unable to fully remove CloudFormationType arn=%s", cfs.typeSummary.TypeArn)
+	} else {
+		return nil
+	}
+}
+
+func (cfs *CloudFormationType) Properties() types.Properties {
+	properties := types.NewProperties()
+	properties.Set("Name", cfs.typeSummary.TypeName)
+	properties.Set("Type", cfs.typeSummary.Type)
+
+	return properties
+}
+
+func (cfs *CloudFormationType) String() string {
+	return *cfs.typeSummary.TypeArn
+}
