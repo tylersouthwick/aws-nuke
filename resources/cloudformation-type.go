@@ -63,8 +63,9 @@ func (cfs *CloudFormationType) Remove() error {
 		if _, err := cfs.svc.DeregisterType(&cloudformation.DeregisterTypeInput{
 			VersionId: typeVersionSummary.VersionId,
 			TypeName:  typeVersionSummary.TypeName,
+			Type:      typeVersionSummary.Type,
 		}); err != nil {
-			logrus.Errorf("CloudFormationType failed removing type=%s version=%s error=%s", *cfs.typeSummary.TypeArn, *typeVersionSummary.VersionId, err.Error())
+			logrus.Errorf("CloudFormationType failed removing type=%s version=%s type=%s arn=%s error=%s", *cfs.typeSummary.TypeName, *typeVersionSummary.VersionId, *typeVersionSummary.Type, *cfs.typeSummary.TypeArn, err.Error())
 			failed = true
 		}
 	}
