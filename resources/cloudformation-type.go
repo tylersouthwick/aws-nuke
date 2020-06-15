@@ -70,7 +70,7 @@ func (cfs *CloudFormationType) Remove() error {
 	}
 
 	if failed {
-		return fmt.Errorf("Unable to fully remove CloudFormationType arn=%s", cfs.typeSummary.TypeArn)
+		return fmt.Errorf("Unable to fully remove CloudFormationType arn=%s", *cfs.typeSummary.TypeArn)
 	} else {
 		return nil
 	}
