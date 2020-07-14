@@ -2,7 +2,8 @@
 
 # NIKE BUILD
 
-## https://github.com/rebuy-de/aws-nuke/pull/531
+* https://github.com/rebuy-de/aws-nuke/pull/531
+* https://github.com/rebuy-de/aws-nuke/pull/529
 
 [![Build Status](https://travis-ci.org/rebuy-de/aws-nuke.svg?branch=master)](https://travis-ci.org/rebuy-de/aws-nuke)
 [![license](https://img.shields.io/github/license/rebuy-de/aws-nuke.svg)](https://github.com/rebuy-de/aws-nuke/blob/master/LICENSE)
